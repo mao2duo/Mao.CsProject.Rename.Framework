@@ -29,8 +29,12 @@ namespace Mao.CsProject.Rename.Console
         {
             if (!Directory.Exists(projectPath))
             {
+                System.Console.WriteLine("專案目錄不存在");
+                System.Console.ReadKey();
                 return;
             }
+
+            projectPath = projectPath.TrimEnd('\\');
 
             #region 刪除不需要的目錄
             List<string> deleteDirectories = new List<string>();
@@ -101,7 +105,7 @@ namespace Mao.CsProject.Rename.Console
                     {
                         directorySource = directoryPath.Substring(0, index2);
                     }
-                    string directoryDestination = directorySource.Replace(originalName, targetName);
+                    string directoryDestination = Path.Combine(projectPath, directorySource.Substring(pathIndex).Replace(originalName, targetName));
                     // 重新命名目錄
                     Directory.Move(directorySource, directoryDestination);
                     // 把新路徑寫回陣列
@@ -142,11 +146,11 @@ namespace Mao.CsProject.Rename.Console
             for (int i = 0; i < files.Length; i++)
             {
                 string filePath = files[i];
-                // 因為前面有做過重新命名目錄，所以如果整個路徑還有就專案名稱就是在檔案名稱
-                if (filePath.Contains(originalName))
+                if (filePath.IndexOf(originalName, pathIndex) >= 0)
                 {
+                    // 因為前面有做過重新命名目錄，所以如果相對路徑還有舊專案名稱就是在檔案名稱
                     string fileSource = filePath;
-                    string fileDestination = fileSource.Replace(originalName, targetName);
+                    string fileDestination = Path.Combine(projectPath, filePath.Substring(pathIndex).Replace(originalName, targetName));
                     // 重新命名檔案
                     File.Move(fileSource, fileDestination);
                     // 把新路徑寫回陣列
